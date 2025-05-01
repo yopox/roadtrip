@@ -1,0 +1,35 @@
+/* Map container styles */
+.map-container {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Override Leaflet's default styles to ensure proper display */
+.leaflet-container {
+  height: 100vh;
+  width: 100vw;
+  z-index: 1;
+}
+
+/* Ensure controls are visible */
+.leaflet-control-zoom {
+  margin: 32px !important;
+}
+
+/* Custom pin marker styles */
+.custom-marker {
+  position: relative;
+}
+
+.pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-8px, 4px);
+  border-radius: 50%;
+  opacity: 0.85;
+  border: 8px solid #fff; /* Default color, will be overridden */
+}

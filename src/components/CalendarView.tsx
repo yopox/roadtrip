@@ -1,0 +1,87 @@
+import React from 'react'
+
+import {Card, CardBody, CardHeader, Divider} from "@heroui/react"
+import {getNoteColor, useNotes} from "./NotesProvider"
+import {NoteColor} from "../styles/colors.ts"
+
+const JULY_2025_START_INDEX: number = 1
+const JULY_2025_DAYS: number = 31
+
+type CalendarDay = {
+  day: number;
+  color: NoteColor | null;
+}
+
+function CalendarView({}) {
+  const { notes } = useNotes()
+
+  const generateCalendarDays: () => CalendarDay[] = () => {
+    const days: CalendarDay[] = []
+
+    // Add empty cells for days before the 1st
+    for (let i = 0; i < JULY_2025_START_INDEX; i++) {
+      days.push({ day: null, color: null })
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= JULY_2025_DAYS; day++) {
+      const date = new Date(2025, 6, day)
+
+      // Find an event that contains this date
+      let color = null
+
+      for (const note of notes) {
+        const startDate = new Date(note.date.start)
+        const endDate = new Date(note.date.end)
+        if (date >= startDate && date <= endDate) {
+          color = getNoteColor(note.id, notes)
+          break
+        }
+      }
+
+      days.push({ day, color })
+    }
+
+    return days
+  }
+
+  return (
+      <Card
+          isBlurred
+          className="border-none bg-background/60 dark:bg-default-100/50 m-8 max-w-[610px]"
+          shadow="md"
+      >
+        <CardHeader className="py-2 px-4 flex-col items-start">
+          <h4 className="font-bold text-large">July 2025</h4>
+        </CardHeader>
+
+        <Divider />
+
+        <CardBody className="text-zinc-800">
+          <div className="grid grid-cols-7 gap-1 text-center *:size-8 *:font-bold">
+            <div>M</div>
+            <div>T</div>
+            <div>W</div>
+            <div>T</div>
+            <div>F</div>
+            <div className="text-zinc-500">S</div>
+            <div className="text-zinc-500">S</div>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {generateCalendarDays().map((dayData) => (
+                <div
+                    key={dayData.day}
+                    className={`p-1 rounded-full size-8 ${dayData.color ? dayData.color.light + " " + dayData.color.hover : "hover:bg-neutral-200"}`}
+                >
+                  {dayData.day}
+                </div>
+            ))}
+          </div>
+        </CardBody>
+
+      </Card>
+  )
+}
+
+export default CalendarView
