@@ -1,19 +1,32 @@
 import React, {useState} from 'react'
-import {format} from 'date-fns';
-import {Button, Card, CardBody, CardHeader, Chip, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Textarea} from "@heroui/react";
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    Chip,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
+    Input,
+    Textarea,
+    useDisclosure
+} from "@heroui/react";
 import {createNewNote, getNoteColor, Note, useNotes} from "./NotesProvider";
+import NoteEditModal from "./NoteEditModal.tsx"
+import {CalendarDate} from "@internationalized/date"
+import {BedIcon, PeopleIcon} from "./Icons.tsx"
 
-function firstDayAvailable(notes: Note[]): Date {
+function firstDayAvailable(notes: Note[]): CalendarDate {
     let day = notes.length
-        ? new Date(notes[0].date.end)
-        : new Date(2025, 5, 30);
-    day.setDate(day.getDate() + 1);
+        ? notes[0].date.end.add({days: 1})
+        : new CalendarDate(2025, 6, 1);
 
     for (let n of notes) {
-        if (day.getTime() < n.date.start) break;
-        if (day.getTime() > n.date.end) continue;
-        day = new Date(n.date.end);
-        day.setDate(day.getDate() + 1);
+        if (day.compare(n.date.start) < 0) break;
+        if (day.compare(n.date.end) > 0) continue;
+        day = n.date.end.add({days: 1});
     }
 
     return day
@@ -24,6 +37,8 @@ function NotesSection() {
 
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [editValue, setEditValue] = useState(null);
+    const [popupNoteId, setPopupNoteId] = useState(null);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure()
 
     const saveField = () => {
         const note = notes.find(n => n.id === editingNoteId)
@@ -33,12 +48,13 @@ function NotesSection() {
         setEditingNoteId(null)
     }
 
-    const formatDateRange = (date: {start: number, end: number}) => {
-        return `${format(new Date(date.start), 'd')} → ${format(new Date(date.end), 'd')}`
+    const formatDateRange = (date: {start: CalendarDate, end: CalendarDate}) => {
+        return `${date.start.day} → ${date.end.day}`
     };
 
     return (
         <div className="flex flex-col gap-4 p-8 pb-4">
+            <NoteEditModal isOpen={isOpen} noteId={popupNoteId} onOpenChange={onOpenChange}/>
             <Button
                 isIconOnly
                 aria-label="Add Location"
@@ -48,9 +64,11 @@ function NotesSection() {
                 onPress={(_) => {
                     const note = createNewNote()
                     const day = firstDayAvailable(notes)
-                    note.date.start = day.getTime();
-                    note.date.end = day.getTime();
+                    note.date.start = day;
+                    note.date.end = day;
                     addNote(note)
+                    setPopupNoteId(note.id);
+                    onOpen();
                 }}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -109,8 +127,8 @@ function NotesSection() {
                                             onAction={(actionKey) => {
                                                 switch (actionKey) {
                                                     case "edit-details":
-                                                        // TODO: Open Popup
-                                                        // editNote(note.id);
+                                                        setPopupNoteId(note.id)
+                                                        onOpen()
                                                         break;
                                                     case "delete":
                                                         deleteNote(note.id);
@@ -129,19 +147,13 @@ function NotesSection() {
                         <CardBody>
                             <div className="text-sm text-zinc-600">
                                 <div className="flex flex-row items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
-                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
-                                    </svg>
-
+                                    <PeopleIcon className="size-4" />
                                     {note.participants.length > 0
-                                        ? note.participants.join(', ')
+                                        ? note.participants
                                         : 'No participants'}
                                 </div>
                                 <div className="flex flex-row items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
-                                        <path d="M8.543 2.232a.75.75 0 0 0-1.085 0l-5.25 5.5A.75.75 0 0 0 2.75 9H4v4a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V9h1.25a.75.75 0 0 0 .543-1.268l-5.25-5.5Z" />
-                                    </svg>
-
+                                    <BedIcon className="size-4" />
                                     {note.sleepingPlace
                                         ? `${note.sleepingPlace}`
                                         : 'No sleeping place'}

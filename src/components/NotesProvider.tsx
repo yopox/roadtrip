@@ -1,16 +1,17 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from "react"
 import {CARD_COLORS, NoteColor} from "../styles/colors.ts"
 import {LatLngLiteral} from "leaflet"
+import {CalendarDate} from "@internationalized/date"
 
 export type Note = {
     id: string;
     name: string;
     location: LatLngLiteral | null;
     date: {
-        start: number;
-        end: number;
+        start: CalendarDate;
+        end: CalendarDate;
     };
-    participants: string[];
+    participants: string;
     sleepingPlace: string;
     notes: string[];
 }
@@ -21,11 +22,11 @@ export function createNewNote(): Note {
         name: "",
         location: null,
         date: {
-            start: Date.now(),
-            end: Date.now(),
+            start: new CalendarDate(2025, 0, 0),
+            end: new CalendarDate(2025, 0, 0)
         },
         notes: [],
-        participants: [],
+        participants: "",
         sleepingPlace: "",
     })
 }
@@ -42,7 +43,7 @@ const NoteContext = createContext<NoteContextType | undefined>(undefined)
 
 function sortByDay(notes: Note[]) {
     return notes.sort((n1, n2) => {
-        return n1.date.start - n2.date.start;
+        return n1.date.start.compare(n2.date.start)
     })
 }
 
@@ -50,6 +51,10 @@ export function NoteProvider({ children }: { children: ReactNode }) {
     const [notes, setNotes] = useState(() => {
         const savedNotes: string = localStorage.getItem('plannerNotes')
         let loadedNotes: Note[] = savedNotes ? JSON.parse(savedNotes) : []
+        loadedNotes.forEach(note => {
+            note.date.start = new CalendarDate(note.date.start.year, note.date.start.month, note.date.start.day)
+            note.date.end = new CalendarDate(note.date.end.year, note.date.end.month, note.date.end.day)
+        })
         return sortByDay(loadedNotes)
     })
 

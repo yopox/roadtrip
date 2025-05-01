@@ -7,7 +7,7 @@ import {NoteProvider} from "./components/NotesProvider";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <HeroUIProvider>
+        <HeroUIProvider locale="en-GB">
             <NoteProvider>
                 <App />
             </NoteProvider>

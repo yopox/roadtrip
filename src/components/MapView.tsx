@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, useMap, Polyline } from 'react-leaflet'
+import React, {useEffect, useRef} from 'react'
+import {MapContainer, Polyline, TileLayer, useMap} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { format } from 'date-fns'
 import '../styles/MapView.css'
 import {getNoteColor, useNotes} from "./NotesProvider"
+import {CalendarDate} from "@internationalized/date"
 
 // Function to create a custom colored marker
 const createColoredMarker: (hexColor: string) => L.DivIcon = (hexColor) => {
@@ -51,8 +51,8 @@ function MapController({ selectedLocation, setSelectedLocation }) {
 function MapView({ selectedLocation, setSelectedLocation }) {
   const { notes } = useNotes()
 
-  const formatDateRange: (date: { start: number, end: number }) => string = (date) => {
-    return `${format(new Date(date.start), 'd')} - ${format(new Date(date.end), 'd')}`
+  const formatDateRange: (date: { start: CalendarDate, end: CalendarDate }) => string = (date) => {
+    return `${date.start.day} - ${date.end.day}`
   }
 
   const filteredMarkers = notes.filter(note => note.location)
@@ -106,21 +106,16 @@ function MapView({ selectedLocation, setSelectedLocation }) {
             dateRange.textContent = formatDateRange(note.date)
 
             const participants = document.createElement('p')
-            participants.textContent = `Participants: ${note.participants.join(', ')}`
+            participants.textContent = `Participants: ${note.participants}`
 
-            // Add sleeping place if it exists
             const sleepingPlace = document.createElement('p')
-            if (note.sleepingPlace) {
-              sleepingPlace.textContent = `Sleeping: ${note.sleepingPlace}`
-              sleepingPlace.style.fontStyle = 'italic'
-            }
+            sleepingPlace.textContent = `Sleeping: ${note.sleepingPlace}`
+            sleepingPlace.style.fontStyle = 'italic'
 
             popupContent.appendChild(title)
             popupContent.appendChild(dateRange)
             popupContent.appendChild(participants)
-            if (note.sleepingPlace) {
-              popupContent.appendChild(sleepingPlace)
-            }
+            popupContent.appendChild(sleepingPlace)
 
             marker.bindPopup(popupContent)
             marker.addTo(map)
@@ -141,7 +136,7 @@ function MapView({ selectedLocation, setSelectedLocation }) {
   }
 
   return (
-    <div className="map-container">
+    <div className="h-screen w-screen top-0 left-0">
       <MapContainer 
         center={JAPAN_POSITION}
         zoom={DEFAULT_ZOOM} 

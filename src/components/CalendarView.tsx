@@ -3,6 +3,7 @@ import React from 'react'
 import {Card, CardBody, CardHeader, Divider} from "@heroui/react"
 import {getNoteColor, useNotes} from "./NotesProvider"
 import {NoteColor} from "../styles/colors.ts"
+import {CalendarDate} from "@internationalized/date"
 
 const JULY_2025_START_INDEX: number = 1
 const JULY_2025_DAYS: number = 31
@@ -11,6 +12,8 @@ type CalendarDay = {
   day: number;
   color: NoteColor | null;
 }
+
+export const TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 function CalendarView({}) {
   const { notes } = useNotes()
@@ -25,15 +28,14 @@ function CalendarView({}) {
 
     // Add days of the month
     for (let day = 1; day <= JULY_2025_DAYS; day++) {
-      const date = new Date(2025, 6, day)
+      const date = new CalendarDate(2025, 6, day)
 
       // Find an event that contains this date
       let color = null
 
-      for (const note of notes) {
-        const startDate = new Date(note.date.start)
-        const endDate = new Date(note.date.end)
-        if (date >= startDate && date <= endDate) {
+      for (let i = notes.length - 1; i >= 0; i--){
+        const note = notes[i]
+        if (date.compare(note.date.start) >= 0 && date.compare(note.date.end) <= 0) {
           color = getNoteColor(note.id, notes)
           break
         }
