@@ -18,7 +18,6 @@ function NoteEditModal({ noteId, isOpen, onOpenChange }: { noteId: string | null
 
     const handleSave = (onClose: () => void) => {
         if (noteId) {
-            console.log(dateRange)
             updateNote(noteId, {
                 ...note,
                 name,
