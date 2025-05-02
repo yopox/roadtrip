@@ -145,7 +145,7 @@ function MapView() {
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://tiles.stadiamaps.com/tiles/alidade_bright/{z}/{x}/{y}.png"
         />
 
