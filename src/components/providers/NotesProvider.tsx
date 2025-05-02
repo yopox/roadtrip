@@ -22,8 +22,8 @@ export function createNewNote(): Note {
         name: "",
         location: null,
         date: {
-            start: new CalendarDate(2025, 0, 0),
-            end: new CalendarDate(2025, 0, 0)
+            start: new CalendarDate(2025, 1, 1),
+            end: new CalendarDate(2025, 1, 1)
         },
         notes: [],
         participants: "",

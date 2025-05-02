@@ -28,7 +28,7 @@ function CalendarView({}) {
 
     // Add days of the month
     for (let day = 1; day <= JULY_2025_DAYS; day++) {
-      const date = new CalendarDate(2025, 6, day)
+      const date = new CalendarDate(2025, 7, day)
 
       // Find an event that contains this date
       let color = null
