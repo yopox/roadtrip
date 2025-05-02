@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {
     Button,
     Card,
@@ -13,10 +13,12 @@ import {
     Textarea,
     useDisclosure
 } from "@heroui/react";
-import {createNewNote, getNoteColor, Note, useNotes} from "./NotesProvider";
+import {createNewNote, getNoteColor, Note, useNotes} from "../providers/NotesProvider.tsx";
 import NoteEditModal from "./NoteEditModal.tsx"
 import {CalendarDate} from "@internationalized/date"
-import {BedIcon, MenuIcon, PeopleIcon} from "./Icons.tsx"
+import {BedIcon, MenuIcon, PeopleIcon} from "../ui/Icons.tsx"
+import {useLocation} from "../providers/LocationProvider.tsx"
+import {LatLngLiteral} from "leaflet"
 
 function firstDayAvailable(notes: Note[]): CalendarDate {
     let day = notes.length
@@ -33,12 +35,38 @@ function firstDayAvailable(notes: Note[]): CalendarDate {
 }
 
 function NotesSection() {
-    const {notes, addNote, updateNote, deleteNote} = useNotes();
+    const {notes, addNote, updateNote, deleteNote} = useNotes()
+    const { mapLocation, onMapLocationChanged } = useLocation()
 
-    const [editingNoteId, setEditingNoteId] = useState(null);
-    const [editValue, setEditValue] = useState(null);
-    const [popupNoteId, setPopupNoteId] = useState(null);
+    const [editingNoteId, setEditingNoteId] = useState(null)
+    const [editValue, setEditValue] = useState(null)
+    const [popupNoteId, setPopupNoteId] = useState(null)
     const {isOpen, onOpen, onOpenChange} = useDisclosure()
+
+    const waitForMapLocation = useCallback(() => {
+        return new Promise((resolve: (value: LatLngLiteral) => void, reject) => {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    document.removeEventListener('keydown', handleKeyDown);
+                    reject(new Error('Selection cancelled'))
+                }
+            }
+
+            const unsubscribe = onMapLocationChanged((newLocation) => {
+                document.removeEventListener('keydown', handleKeyDown)
+                unsubscribe()
+                resolve(newLocation)
+            })
+
+            document.addEventListener('keydown', handleKeyDown);
+        })
+    }, [])
+
+    const setNoteLocation = (noteId: string, location: LatLngLiteral) => {
+        const note = notes.find(n => n.id === noteId)
+        note.location = location
+        updateNote(noteId, note)
+    }
 
     const saveField = () => {
         const note = notes.find(n => n.id === editingNoteId)
@@ -50,7 +78,7 @@ function NotesSection() {
 
     const formatDateRange = (date: {start: CalendarDate, end: CalendarDate}) => {
         return `${date.start.day} → ${date.end.day}`
-    };
+    }
 
     return (
         <div className="flex flex-col gap-4 p-8 pb-4">
@@ -128,6 +156,12 @@ function NotesSection() {
                                                         setPopupNoteId(note.id)
                                                         onOpen()
                                                         break;
+                                                    case "select-location":
+                                                        waitForMapLocation().then((location) => {
+                                                            if (!location) return;
+                                                            setNoteLocation(note.id, location)
+                                                        })
+                                                        break;
                                                     case "delete":
                                                         deleteNote(note.id);
                                                         break;
@@ -135,6 +169,7 @@ function NotesSection() {
                                             }}
                                         >
                                             <DropdownItem key="edit-details">Edit Details</DropdownItem>
+                                            <DropdownItem key="select-location">Select Location</DropdownItem>
                                             <DropdownItem key="delete" className="text-danger" color="danger">Delete Card</DropdownItem>
                                         </DropdownMenu>
                                     </Dropdown>

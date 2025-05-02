@@ -2,9 +2,10 @@ import React, {useEffect, useRef} from 'react'
 import {MapContainer, Polyline, TileLayer, useMap} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import '../styles/MapView.css'
-import {getNoteColor, useNotes} from "./NotesProvider"
+import '../../styles/MapView.css'
+import {getNoteColor, useNotes} from "../providers/NotesProvider.tsx"
 import {CalendarDate} from "@internationalized/date"
+import {useLocation} from "../providers/LocationProvider.tsx"
 
 // Function to create a custom colored marker
 const createColoredMarker: (hexColor: string) => L.DivIcon = (hexColor) => {
@@ -35,7 +36,7 @@ function MapController({ selectedLocation, setSelectedLocation }) {
   // Add click handler to set location
   useEffect(() => {
     const handleMapClick = (e) => {
-      setSelectedLocation([e.latlng.lat, e.latlng.lng])
+      setSelectedLocation(e.latlng)
     }
 
     map.on('click', handleMapClick)
@@ -48,8 +49,9 @@ function MapController({ selectedLocation, setSelectedLocation }) {
   return null
 }
 
-function MapView({ selectedLocation, setSelectedLocation }) {
+function MapView() {
   const { notes } = useNotes()
+  const { mapLocation, setMapLocation } = useLocation()
 
   const formatDateRange: (date: { start: CalendarDate, end: CalendarDate }) => string = (date) => {
     return `${date.start.day} - ${date.end.day}`
@@ -130,7 +132,7 @@ function MapView({ selectedLocation, setSelectedLocation }) {
         })
         markersRef.current = []
       }
-    }, [map, filteredMarkers, setSelectedLocation])
+    }, [map, filteredMarkers, setMapLocation])
 
     return null
   }
@@ -147,7 +149,7 @@ function MapView({ selectedLocation, setSelectedLocation }) {
           url="https://tiles.stadiamaps.com/tiles/alidade_bright/{z}/{x}/{y}.png"
         />
 
-        <MapController selectedLocation={selectedLocation} setSelectedLocation={setSelectedLocation} />
+        <MapController selectedLocation={mapLocation} setSelectedLocation={setMapLocation} />
         <MapMarkersController />
 
         {polylines.map((positions, index) => (

@@ -1,6 +1,6 @@
 import {Button, DateRangePicker, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@heroui/react"
-import {useNotes} from "./NotesProvider.tsx"
-import {BedIcon, PeopleIcon} from "./Icons.tsx"
+import {useNotes} from "../providers/NotesProvider.tsx"
+import {BedIcon, PeopleIcon} from "../ui/Icons.tsx"
 import {useState} from "react"
 import {CalendarDate} from "@internationalized/date"
 

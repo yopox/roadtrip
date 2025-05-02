@@ -1,8 +1,8 @@
 import React from 'react'
 
 import {Card, CardBody, CardHeader, Divider} from "@heroui/react"
-import {getNoteColor, useNotes} from "./NotesProvider"
-import {NoteColor} from "../styles/colors.ts"
+import {getNoteColor, useNotes} from "../providers/NotesProvider.tsx"
+import {NoteColor} from "../../styles/colors.ts"
 import {CalendarDate} from "@internationalized/date"
 
 const JULY_2025_START_INDEX: number = 1

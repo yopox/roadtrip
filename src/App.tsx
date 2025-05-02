@@ -1,18 +1,13 @@
-import React, {useState} from 'react'
-import MapView from './components/MapView'
-import NotesSection from './components/NotesSection'
-import CalendarView from './components/CalendarView'
+import React from 'react'
+import MapView from './components/map/MapView.tsx'
+import NotesSection from './components/notes/NotesSection.tsx'
+import CalendarView from './components/calendar/CalendarView.tsx'
 
 function App() {
-    const [selectedLocation, setSelectedLocation] = useState(null)
-
     return (
         <>
             <div className="absolute top-0 left-0 z-1">
-                <MapView
-                    selectedLocation={selectedLocation}
-                    setSelectedLocation={setSelectedLocation}
-                />
+                <MapView/>
             </div>
 
             <div className="absolute bottom-4 left-0 z-2">

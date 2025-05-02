@@ -1,5 +1,5 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from "react"
-import {CARD_COLORS, NoteColor} from "../styles/colors.ts"
+import {CARD_COLORS, NoteColor} from "../../styles/colors.ts"
 import {LatLngLiteral} from "leaflet"
 import {CalendarDate} from "@internationalized/date"
 
