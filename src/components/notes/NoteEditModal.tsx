@@ -1,20 +1,19 @@
 import {Button, DateRangePicker, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from "@heroui/react"
 import {useNotes} from "../providers/NotesProvider.tsx"
 import {BedIcon, PeopleIcon} from "../ui/Icons.tsx"
-import {useState} from "react"
 import {CalendarDate} from "@internationalized/date"
 
 function NoteEditModal({ noteId, isOpen, onOpenChange }: { noteId: string | null, isOpen: boolean, onOpenChange: (_: boolean) => any }) {
     const { notes, updateNote } = useNotes()
     const note = noteId ? notes.find(n => n.id === noteId) : null
 
-    const [name, setName] = useState(note?.name || '')
-    const [dateRange, setDateRange] = useState({
-        start: note?.date.start || new CalendarDate(2025, 0, 1),
-        end: note?.date.end || new CalendarDate(2025, 0, 1)
-    })
-    const [participants, setParticipants] = useState(note?.participants || '')
-    const [sleepingPlace, setSleepingPlace] = useState(note?.sleepingPlace || '')
+    let name = note ? note.name : ''
+    let dateRange = note ? note.date : {
+        start: new CalendarDate(2025, 0, 1),
+        end: new CalendarDate(2025, 0, 1)
+    }
+    let participants = note ? note.participants : ''
+    let sleepingPlace = note ? note.sleepingPlace : ''
 
     const handleSave = (onClose: () => void) => {
         if (noteId) {
@@ -22,8 +21,8 @@ function NoteEditModal({ noteId, isOpen, onOpenChange }: { noteId: string | null
                 ...note,
                 name,
                 date: {
-                    start: new CalendarDate(dateRange.start.year, dateRange.start.month, dateRange.start.day),
-                    end: new CalendarDate(dateRange.end.year, dateRange.end.month, dateRange.end.day),
+                    start: dateRange.start,
+                    end: dateRange.end,
                 },
                 participants,
                 sleepingPlace
@@ -49,34 +48,34 @@ function NoteEditModal({ noteId, isOpen, onOpenChange }: { noteId: string | null
                                         label="Name"
                                         placeholder="Location Name"
                                         variant="bordered"
-                                        defaultValue={note.name}
-                                        onValueChange={setName}
+                                        defaultValue={name}
+                                        onValueChange={value => name = value}
                                     />
                                     <DateRangePicker
                                         isRequired
                                         label="Date"
                                         firstDayOfWeek="mon"
                                         defaultValue={{
-                                            start: note.date.start,
-                                            end: note.date.end,
+                                            start: dateRange.start,
+                                            end: dateRange.end,
                                         }}
-                                        onChange={setDateRange}
+                                        onChange={value => dateRange = value}
                                     />
                                 </div>
                                 <Input
                                     label="Participants (comma separated)"
                                     placeholder="No Participants"
                                     variant="bordered"
-                                    defaultValue={note.participants}
-                                    onValueChange={setParticipants}
+                                    defaultValue={participants}
+                                    onValueChange={value => participants = value}
                                     endContent={(<PeopleIcon className="size-6 text-default-400 pointer-events-none"/>)}
                                 />
                                 <Input
                                     label="Sleeping Place"
                                     placeholder="No Sleeping Place"
                                     variant="bordered"
-                                    defaultValue={note.sleepingPlace}
-                                    onValueChange={setSleepingPlace}
+                                    defaultValue={sleepingPlace}
+                                    onValueChange={value => sleepingPlace = value}
                                     endContent={(<BedIcon className="size-6 text-default-400 pointer-events-none"/>)}
                                 />
                             </ModalBody>
