@@ -14,7 +14,7 @@ const createColoredMarker: (hexColor: string) => L.DivIcon = (hexColor) => {
 
   const pin: HTMLDivElement = document.createElement('div')
   pin.className = 'pin'
-  pin.style.borderColor = hexColor[3]
+  pin.style.borderColor = hexColor
 
   markerElement.appendChild(pin)
 
