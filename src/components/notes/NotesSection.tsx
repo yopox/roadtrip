@@ -81,14 +81,14 @@ function NotesSection() {
     }
 
     return (
-        <div className="flex flex-col gap-4 p-8 pb-4">
+        <div className="flex flex-col gap-4 pb-4">
             <NoteEditModal isOpen={isOpen} noteId={popupNoteId} onOpenChange={onOpenChange}/>
             <Button
                 isIconOnly
                 aria-label="Add Location"
                 variant="solid"
                 color="primary"
-                className="w-fit text-zinc-800"
+                className="w-fit text-zinc-800 mx-8"
                 onPress={(_) => {
                     const note = createNewNote()
                     const day = firstDayAvailable(notes)
@@ -104,7 +104,7 @@ function NotesSection() {
                 </svg>
             </Button>
             <div
-                className="flex flex-row gap-6 overflow-x-scroll scrollbar-hide"
+                className="flex flex-row gap-6 px-8 overflow-x-scroll scrollbar-hide"
             >
                 {notes.map((note) => (
                     <Card

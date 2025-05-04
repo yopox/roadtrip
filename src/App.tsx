@@ -10,7 +10,7 @@ function App() {
                 <MapView/>
             </div>
 
-            <div className="absolute bottom-4 left-0 z-2">
+            <div className="absolute bottom-4 left-0 z-2 w-full">
                 <NotesSection/>
             </div>
 
