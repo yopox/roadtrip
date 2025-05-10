@@ -1,7 +1,11 @@
-import {createContext, ReactNode, useContext, useEffect, useState} from "react"
+import {createContext, ReactNode, useContext, useEffect} from "react"
 import {CARD_COLORS, NoteColor} from "../../styles/colors.ts"
 import {LatLngLiteral} from "leaflet"
 import {CalendarDate} from "@internationalized/date"
+import {useY} from 'react-yjs';
+import * as Y from 'yjs';
+
+const NOTES_KEY: string = "notes"
 
 export type Note = {
     id: string;
@@ -41,37 +45,39 @@ type NoteContextType = {
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined)
 
-function sortByDay(notes: Note[]) {
+export function sortByDay(notes: Note[]) {
     return notes.sort((n1, n2) => {
         return n1.date.start.compare(n2.date.start)
     })
 }
 
+const yDoc = new Y.Doc();
+const yArray = yDoc.getArray<Note>(NOTES_KEY);
+
 export function NoteProvider({ children }: { children: ReactNode }) {
-    const [notes, setNotes] = useState(() => {
-        const savedNotes: string = localStorage.getItem('plannerNotes')
-        let loadedNotes: Note[] = savedNotes ? JSON.parse(savedNotes) : []
-        loadedNotes.forEach(note => {
-            note.date.start = new CalendarDate(note.date.start.year, note.date.start.month, note.date.start.day)
-            note.date.end = new CalendarDate(note.date.end.year, note.date.end.month, note.date.end.day)
-        })
-        return sortByDay(loadedNotes)
-    })
+    const notes = useY(yArray);
 
     useEffect(() => {
         localStorage.setItem('plannerNotes', JSON.stringify(notes))
     }, [notes])
 
     const addNote = (note: Note) => {
-        setNotes(sortByDay([...notes, note]))
+        yDoc.getArray(NOTES_KEY).push([note])
     }
 
     const updateNote = (id: string, note: Note) => {
-        setNotes(notes.map(n => n.id === id ? note : n))
+        const index = notes.findIndex(n => n.id === id)
+        yDoc.transact(() => {
+            yDoc.getArray(NOTES_KEY).delete(index)
+            yDoc.getArray(NOTES_KEY).insert(index, [note])
+        })
     }
 
     const deleteNote = (id: string) => {
-        setNotes(notes.filter(n => n.id !== id))
+        const index = notes.findIndex(n => n.id === id)
+        if (index !== -1) {
+            yDoc.getArray(NOTES_KEY).delete(index)
+        }
     }
 
     return (

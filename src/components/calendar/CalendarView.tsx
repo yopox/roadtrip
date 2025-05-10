@@ -1,7 +1,7 @@
 import React from 'react'
 
 import {Card, CardBody, CardHeader, Divider} from "@heroui/react"
-import {getNoteColor, useNotes} from "../providers/NotesProvider.tsx"
+import {getNoteColor, sortByDay, useNotes} from "../providers/NotesProvider.tsx"
 import {NoteColor} from "../../styles/colors.ts"
 import {CalendarDate} from "@internationalized/date"
 
@@ -33,8 +33,10 @@ function CalendarView({}) {
       // Find an event that contains this date
       let color = null
 
+      let sortedNotes = sortByDay(notes)
+
       for (let i = notes.length - 1; i >= 0; i--){
-        const note = notes[i]
+        const note = sortedNotes[i]
         if (date.compare(note.date.start) >= 0 && date.compare(note.date.end) <= 0) {
           color = getNoteColor(note.id, notes)
           break

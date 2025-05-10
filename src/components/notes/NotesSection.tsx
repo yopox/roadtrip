@@ -13,7 +13,7 @@ import {
     Textarea,
     useDisclosure
 } from "@heroui/react";
-import {createNewNote, getNoteColor, Note, useNotes} from "../providers/NotesProvider.tsx";
+import {createNewNote, getNoteColor, Note, sortByDay, useNotes} from "../providers/NotesProvider.tsx";
 import NoteEditModal from "./NoteEditModal.tsx"
 import {CalendarDate} from "@internationalized/date"
 import {BedIcon, MenuIcon, PeopleIcon} from "../ui/Icons.tsx"
@@ -23,7 +23,7 @@ import {LatLngLiteral} from "leaflet"
 function firstDayAvailable(notes: Note[]): CalendarDate {
     let day = notes.length
         ? notes[0].date.end.add({days: 1})
-        : new CalendarDate(2025, 6, 1);
+        : new CalendarDate(2025, 7, 1);
 
     for (let n of notes) {
         if (day.compare(n.date.start) < 0) break;
@@ -64,8 +64,8 @@ function NotesSection() {
 
     const setNoteLocation = (noteId: string, location: LatLngLiteral) => {
         const note = notes.find(n => n.id === noteId)
-        note.location = location
-        updateNote(noteId, note)
+        const updatedNote = {...note, location}
+        updateNote(noteId, updatedNote)
     }
 
     const saveField = () => {
@@ -106,7 +106,7 @@ function NotesSection() {
             <div
                 className="flex flex-row gap-6 px-8 overflow-x-scroll scrollbar-hide"
             >
-                {notes.map((note) => (
+                {sortByDay(notes).map((note) => (
                     <Card
                         isBlurred
                         className="border-none bg-background/60 dark:bg-default-100/50 min-w-64 h-fit self-end"
