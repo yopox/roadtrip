@@ -70,8 +70,8 @@ function NotesSection() {
 
     const saveField = () => {
         const note = notes.find(n => n.id === editingNoteId)
-        note.name = editValue
-        updateNote(editingNoteId, note)
+        const updatedNote = {...note, name: editValue}
+        updateNote(editingNoteId, updatedNote)
 
         setEditingNoteId(null)
     }
