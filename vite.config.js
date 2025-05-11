@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import nodePolyfills from "rollup-plugin-polyfill-node";
 
 export default defineConfig({
+  base: "/roadtrip/",
   plugins: [
       react(),
       tailwindcss(),
