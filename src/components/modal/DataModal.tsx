@@ -1,5 +1,5 @@
 import {Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Progress} from "@heroui/react"
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {ExportIcon, GlobeIcon, ImportIcon, WebExportIcon, WebImportIcon} from "../ui/Icons.tsx"
 
 interface LoginModalProps {
@@ -22,7 +22,14 @@ function DataModal({
     importFromMatrix
 }: LoginModalProps) {
 
-    const [roomId, setRoomId] = useState('')
+    const [roomId, setRoomId] = useState(() => {
+        return localStorage.getItem('matrixRoomId') || '#id:matrix.org'
+    })
+
+    useEffect(() => {
+        localStorage.setItem('matrixRoomId', roomId)
+    }, [roomId])
+
     const [userId, setUserId] = useState('')
     const [password, setPassword] = useState('')
     const [isLoggingIn, setIsLoggingIn] = useState(false)
