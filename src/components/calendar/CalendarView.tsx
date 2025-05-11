@@ -76,7 +76,7 @@ function CalendarView({}) {
             {generateCalendarDays().map((dayData) => (
                 <div
                     key={dayData.day}
-                    className={`p-1 rounded-full size-8 ${dayData.color ? dayData.color.light + " " + dayData.color.hover : "hover:bg-neutral-200"}`}
+                    className={`p-1 rounded-full size-8 ${dayData.color ? dayData.color.light + " " + dayData.color.hover : "hover:bg-zinc-400/20"}`}
                 >
                   {dayData.day}
                 </div>
