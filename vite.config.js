@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite'
+import nodePolyfills from "rollup-plugin-polyfill-node";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
       react(),
@@ -14,6 +14,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      plugins: [nodePolyfills()], // Fix for matrix-js-sdk
+    },
   },
+  define: { global: "window" }, // Fix for matrix-js-sdk
 });
