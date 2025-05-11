@@ -35,7 +35,7 @@ function CalendarView({}) {
 
       let sortedNotes = sortByDay(notes)
 
-      for (let i = notes.length - 1; i >= 0; i--){
+      for (let i = notes.length - 1; i >= 0; i--) {
         const note = sortedNotes[i]
         if (date.compare(note.date.start) >= 0 && date.compare(note.date.end) <= 0) {
           color = getNoteColor(note.id, notes)

@@ -1,11 +1,19 @@
-import {createContext, ReactNode, useContext, useEffect} from "react"
+import {createContext, ReactNode, useContext, useEffect, useRef, useState} from "react"
 import {CARD_COLORS, NoteColor} from "../../styles/colors.ts"
 import {LatLngLiteral} from "leaflet"
 import {CalendarDate} from "@internationalized/date"
-import {useY} from 'react-yjs';
+import DataModal from "../modal/DataModal.tsx"
+import {useDisclosure} from "@heroui/react"
+
 import * as Y from 'yjs';
+import {useY} from 'react-yjs';
+import {IndexeddbPersistence} from 'y-indexeddb'
+import * as sdk from "matrix-js-sdk"
+import {exportToClipboard, importFromClipboard} from "../../data/clipboard.ts"
+import {exportToMatrix, importFromMatrix, loginToMatrix} from "../../data/matrix.ts"
 
 const NOTES_KEY: string = "notes"
+const DEFAULT_STORAGE_KEY: string = "default"
 
 export type Note = {
     id: string;
@@ -47,43 +55,107 @@ const NoteContext = createContext<NoteContextType | undefined>(undefined)
 
 export function sortByDay(notes: Note[]) {
     return notes.sort((n1, n2) => {
-        return n1.date.start.compare(n2.date.start)
+        return (n1.date.start.year - n2.date.start.year) || (n1.date.start.month - n2.date.start.month) || (n1.date.start.day - n2.date.start.day)
     })
 }
 
-const yDoc = new Y.Doc();
-const yArray = yDoc.getArray<Note>(NOTES_KEY);
+function reconstructCalendarDate(date: any): CalendarDate {
+    if (date instanceof CalendarDate) return date
+    return new CalendarDate(date.year, date.month, date.day)
+}
+
+function reconstructNote(note: Note): Note {
+    return {
+        ...note,
+        date: {
+            start: reconstructCalendarDate(note.date.start),
+            end: reconstructCalendarDate(note.date.end),
+        }
+    }
+}
 
 export function NoteProvider({ children }: { children: ReactNode }) {
-    const notes = useY(yArray);
+    const yDoc = useRef(new Y.Doc())
+    const [storageKey] = useState<string>(DEFAULT_STORAGE_KEY)
+    const [matrixClient, setMatrixClient] = useState<sdk.MatrixClient | null>(null)
+    const [provider, setProvider] = useState<IndexeddbPersistence | null>(null)
+
+    const yArray = yDoc.current.getArray<Note>(NOTES_KEY)
+    const notes = useY(yArray).map(reconstructNote)
 
     useEffect(() => {
-        localStorage.setItem('plannerNotes', JSON.stringify(notes))
-    }, [notes])
+        if (provider) {
+            provider.destroy()
+        }
+
+        try {
+            const newProvider = new IndexeddbPersistence(storageKey, yDoc.current)
+            setProvider(newProvider)
+        } catch (error) {
+            console.error('Error creating IndexedDB provider:', error)
+        }
+
+        return () => {
+            if (provider) {
+                provider.destroy()
+            }
+        }
+    }, [storageKey])
 
     const addNote = (note: Note) => {
-        yDoc.getArray(NOTES_KEY).push([note])
+        yDoc.current.getArray(NOTES_KEY).push([note])
     }
 
     const updateNote = (id: string, note: Note) => {
         const index = notes.findIndex(n => n.id === id)
-        yDoc.transact(() => {
-            yDoc.getArray(NOTES_KEY).delete(index)
-            yDoc.getArray(NOTES_KEY).insert(index, [note])
+        yDoc.current.transact(() => {
+            yDoc.current.getArray(NOTES_KEY).delete(index)
+            yDoc.current.getArray(NOTES_KEY).insert(index, [note])
         })
     }
 
     const deleteNote = (id: string) => {
         const index = notes.findIndex(n => n.id === id)
         if (index !== -1) {
-            yDoc.getArray(NOTES_KEY).delete(index)
+            yDoc.current.getArray(NOTES_KEY).delete(index)
         }
     }
 
+    const {isOpen, onOpen, onOpenChange} = useDisclosure()
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && !isOpen) {
+                onOpen()
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [isOpen, onOpen])
+
     return (
-        <NoteContext.Provider value={{ notes, addNote, updateNote, deleteNote }}>
-            {children}
-        </NoteContext.Provider>
+        <>
+            <DataModal
+                isOpen={isOpen} 
+                onOpenChange={onOpenChange}
+                onMatrixLogin={(userId, password) => loginToMatrix(userId, password).then(
+                    client => {
+                        if (client) setMatrixClient(client)
+                        return client != null
+                    }
+                )}
+                exportToClipboard={() => exportToClipboard(notes)}
+                importFromClipboard={() => importFromClipboard(yDoc, NOTES_KEY)}
+                exportToMatrix={roomId => exportToMatrix(matrixClient, roomId, notes)}
+                importFromMatrix={roomId => importFromMatrix(matrixClient, roomId, yDoc, NOTES_KEY)}
+            />
+            <NoteContext.Provider value={{ notes, addNote, updateNote, deleteNote }}>
+                {children}
+            </NoteContext.Provider>
+        </>
     )
 }
 

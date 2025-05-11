@@ -14,7 +14,7 @@ import {
     useDisclosure
 } from "@heroui/react";
 import {createNewNote, getNoteColor, Note, sortByDay, useNotes} from "../providers/NotesProvider.tsx";
-import NoteEditModal from "./NoteEditModal.tsx"
+import NoteEditModal from "../modal/NoteEditModal.tsx"
 import {CalendarDate} from "@internationalized/date"
 import {BedIcon, MenuIcon, PeopleIcon} from "../ui/Icons.tsx"
 import {useLocation} from "../providers/LocationProvider.tsx"
@@ -25,10 +25,10 @@ function firstDayAvailable(notes: Note[]): CalendarDate {
         ? notes[0].date.end.add({days: 1})
         : new CalendarDate(2025, 7, 1);
 
-    for (let n of notes) {
-        if (day.compare(n.date.start) < 0) break;
-        if (day.compare(n.date.end) > 0) continue;
-        day = n.date.end.add({days: 1});
+    for (let note of notes) {
+        if (day.compare(note.date.start) < 0) break;
+        if (day.compare(note.date.end) > 0) continue;
+        day = note.date.end.add({days: 1});
     }
 
     return day

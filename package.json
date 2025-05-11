@@ -24,6 +24,7 @@
     "react-leaflet": "^5.0.0",
     "react-yjs": "^2.0.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
+    "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.26"
   },
   "devDependencies": {
