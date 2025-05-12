@@ -88,7 +88,7 @@ function NotesSection() {
                 aria-label="Add Location"
                 variant="solid"
                 color="primary"
-                className="w-fit text-zinc-800 mx-8"
+                className="w-fit text-zinc-800 mx-8 pointer-events-auto"
                 onPress={(_) => {
                     const note = createNewNote()
                     const day = firstDayAvailable(notes)
@@ -109,7 +109,7 @@ function NotesSection() {
                 {sortByDay(notes).map((note) => (
                     <Card
                         isBlurred
-                        className="border-none bg-background/60 dark:bg-default-100/50 min-w-64 h-fit self-end"
+                        className="border-none bg-background/60 dark:bg-default-100/50 min-w-64 h-fit self-end pointer-events-auto"
                         shadow="sm"
                         key={note.id}
                     >

@@ -10,11 +10,11 @@ function App() {
                 <MapView/>
             </div>
 
-            <div className="absolute bottom-4 left-0 z-2 w-full">
+            <div className="absolute bottom-4 left-0 z-2 w-full pointer-events-none">
                 <NotesSection/>
             </div>
 
-            <div className="absolute top-0 right-0 z-2">
+            <div className="absolute top-0 right-0 z-2 pointer-events-none">
                 <CalendarView />
             </div>
         </>

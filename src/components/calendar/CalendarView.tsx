@@ -50,41 +50,43 @@ function CalendarView({}) {
   }
 
   return (
-      <Card
-          isBlurred
-          className="border-none bg-background/60 dark:bg-default-100/50 m-8 max-w-[610px]"
-          shadow="md"
-      >
-        <CardHeader className="py-2 px-4 flex-col items-start">
-          <h4 className="font-bold text-large">July 2025</h4>
-        </CardHeader>
+      <div className="m-8">
+        <Card
+            isBlurred
+            className="border-none bg-background/60 dark:bg-default-100/50 max-w-[610px] pointer-events-auto"
+            shadow="md"
+        >
+          <CardHeader className="py-2 px-4 flex-col items-start">
+            <h4 className="font-bold text-large">July 2025</h4>
+          </CardHeader>
 
-        <Divider />
+          <Divider />
 
-        <CardBody className="text-zinc-800">
-          <div className="grid grid-cols-7 gap-1 text-center *:size-8 *:font-bold">
-            <div>M</div>
-            <div>T</div>
-            <div>W</div>
-            <div>T</div>
-            <div>F</div>
-            <div className="text-zinc-500">S</div>
-            <div className="text-zinc-500">S</div>
-          </div>
+          <CardBody className="text-zinc-800">
+            <div className="grid grid-cols-7 gap-1 text-center *:size-8 *:font-bold">
+              <div>M</div>
+              <div>T</div>
+              <div>W</div>
+              <div>T</div>
+              <div>F</div>
+              <div className="text-zinc-500">S</div>
+              <div className="text-zinc-500">S</div>
+            </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center">
-            {generateCalendarDays().map((dayData) => (
-                <div
-                    key={dayData.day}
-                    className={`p-1 rounded-full size-8 ${dayData.color ? dayData.color.light + " " + dayData.color.hover : "hover:bg-zinc-400/20"}`}
-                >
-                  {dayData.day}
-                </div>
-            ))}
-          </div>
-        </CardBody>
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {generateCalendarDays().map((dayData) => (
+                  <div
+                      key={dayData.day}
+                      className={`p-1 rounded-full size-8 ${dayData.color ? dayData.color.light + " " + dayData.color.hover : "hover:bg-zinc-400/20"}`}
+                  >
+                    {dayData.day}
+                  </div>
+              ))}
+            </div>
+          </CardBody>
 
-      </Card>
+        </Card>
+      </div>
   )
 }
 
